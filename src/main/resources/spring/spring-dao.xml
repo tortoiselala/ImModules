@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+            配置mybatis
+        -->
+    <!-- 数据库配置文件 -->
+
+    <bean class="com.tortoiselala.util.EncryptPropertyPlaceholderConfigurer">
+         <property name="locations">
+             <set>
+                 <value>classpath:database.properties</value>
+                 <value>classpath:im.properties</value>
+             </set>
+         </property>
+    </bean>
+    <!-- 数据库连接池 -->
+    <!-- master -->
+    <bean name="masterDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="${master.driver}"/>
+        <property name="jdbcUrl" value="${master.url}"/>
+        <property name="user" value="${master.username}"/>
+        <property name="password" value="${master.password}"/>
+
+        <!--c3p0私有属性-->
+        <property name="maxPoolSize" value="30"/>
+        <property name="minPoolSize" value="10"/>
+        <!--关闭连接后不自动commit-->
+        <property name="autoCommitOnClose" value="false"/>
+
+        <!--获取连接超时时间-->
+        <property name="checkoutTimeout" value="1000"/>
+        <!--当获取连接失败重试次数-->
+        <property name="acquireRetryAttempts" value="2"/>
+    </bean>
+    <!-- slave -->
+    <bean name="slaveDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="${slave.driver}"/>
+        <property name="jdbcUrl" value="${slave.url}"/>
+        <property name="user" value="${slave.username}"/>
+        <property name="password" value="${slave.password}"/>
+
+        <!--c3p0私有属性-->
+        <property name="maxPoolSize" value="30"/>
+        <property name="minPoolSize" value="10"/>
+        <!--关闭连接后不自动commit-->
+        <property name="autoCommitOnClose" value="false"/>
+
+        <!--获取连接超时时间-->
+        <property name="checkoutTimeout" value="1000"/>
+        <!--当获取连接失败重试次数-->
+        <property name="acquireRetryAttempts" value="2"/>
+    </bean>
+
+    <bean id="dataSource" class="com.tortoiselala.dao.database.DataSources">
+        <property name="master" ref="masterDataSource"/>
+        <property name="slave" ref="slaveDataSource"/>
+    </bean>
+
+
+    <bean id="transactionManager" class="com.tortoiselala.dao.database.TransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean name="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--扫描entity包,使用别名,多个用;隔开-->
+        <property name="typeAliasesPackage" value="com.tortoiselala.entity"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!--４:配置扫描Dao接口包,动态实现DAO接口,注入到spring容器-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--注入SqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!-- 给出需要扫描的Dao接口-->
+        <property name="basePackage" value="com.tortoiselala.dao"/>
+    </bean>
+</beans>
