@@ -3,14 +3,18 @@ package com.tortoiselala.bean;
 import lombok.Data;
 
 /**
- * 封装im服务器发生的异常信息
  * @author tortoiselala
  */
 @Data
-public class ImBadResponseMessageBean {
+public class ImBadResponseBean {
     private String error;
-    private String exception;
-    private int timestamp;
+
+    private long timestamp;
+
     private int duration;
+
+    private String exception;
+
     private String errorDescription;
+
 }

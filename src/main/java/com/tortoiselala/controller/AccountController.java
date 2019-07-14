@@ -1,8 +1,11 @@
 package com.tortoiselala.controller;
 
+import com.tortoiselala.bean.ProcessResultBean;
 import com.tortoiselala.bean.ResponseBean;
 import com.tortoiselala.bean.UserBean;
 import com.tortoiselala.exception.ParameterExtractException;
+import com.tortoiselala.exception.RegistrationException;
+import com.tortoiselala.service.im.ImUserService;
 import com.tortoiselala.service.local.UserService;
 import com.tortoiselala.util.JwtUtils;
 import io.jsonwebtoken.JwtBuilder;
@@ -30,6 +33,9 @@ public class AccountController extends BaseController{
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    ImUserService imUserService;
 
     /**
      * 用户权限认证与证书颁布接口
@@ -71,7 +77,7 @@ public class AccountController extends BaseController{
         headers.put("typ", "JWT");
         // payload的私有声明
         Map<String,Object> claims = new HashMap<>();
-        //payload填充
+        // payload填充
         JwtBuilder builder =
                 Jwts.builder()
                         // 自定义属性
@@ -106,20 +112,28 @@ public class AccountController extends BaseController{
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
     @ResponseBody
-    public ResponseBean register(HttpServletRequest request){
-        ResponseBean response = new ResponseBean();
+    public ResponseBean<UserBean> register(HttpServletRequest request){
+        ResponseBean<UserBean> response = new ResponseBean<>();
         UserBean user;
         try {
             user = userRegisterInformationExtract(request);
-        } catch (ParameterExtractException e) {
+
+            boolean localReg = userService.register(user);
+            if(!localReg){
+                throw new RegistrationException("Local database registration failed");
+            }
+
+            ProcessResultBean imReg= imUserService.register(user.getUid(), user.getPassword());
+            if(!imReg.isSuccess()){
+                throw new RegistrationException("IM server registration failed");
+            }
+            response.setCode(HttpStatus.OK.value());
+            response.setData(user);
+        } catch (ParameterExtractException | RegistrationException e) {
             response.setCode(HttpStatus.BAD_REQUEST.value());
             response.setMessage(e.getMessage());
             return response;
         }
-
-
-
-
-        return new ResponseBean();
+        return response;
     }
 }

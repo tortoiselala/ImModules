@@ -1,14 +1,13 @@
 package com.tortoiselala.bean;
 
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 
 /**
  * @author tortoiselala
  */
 @Data
-public class ProcessResultBean {
+public class ProcessResultBean<T> {
     private boolean success;
-    private HttpStatus status;
     private String message;
+    private T data;
 }

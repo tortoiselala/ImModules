@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 /**
  * @author tortoiselala
  */
-public class AccountImplTest {
+public class ImAccountImplTest {
 
     @Test
     public void authentication() {

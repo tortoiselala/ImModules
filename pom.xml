@@ -158,6 +158,12 @@
           <artifactId>commons-codec</artifactId>
           <version>1.11</version>
       </dependency>
+
+    <!-- auto scan -->
+    <dependency>
+      <groupId></groupId>
+      <artifactId>common-a</artifactId>
+    </dependency>
   </dependencies>
 
   <build>

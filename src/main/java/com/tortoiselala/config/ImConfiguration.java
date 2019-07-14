@@ -91,35 +91,5 @@ public class ImConfiguration {
         return gson.toJson(map);
     }
 
-    final public String generateUserUri(){
-        return generateUserUri(null);
-    }
-
-    final public String generateUserUri(String sub){
-        String r = "/" + getOrgName() + "/" + getAppName() + "/users";
-        if(sub != null){
-            r += sub;
-        }
-        return r;
-    }
-
-    final public String generateFriendUri(String user, String friend){
-        return "/" + getOrgName() +
-                "/" + getAppName() +
-                "/users" +
-                "/" + user +
-                "/contacts" +
-                "/users" +
-                "/" + friend;
-    }
-
-    final public String generateFriendListUri(String user){
-        return "/" + getOrgName() +
-                "/" + getAppName() +
-                "/users" +
-                "/" + user +
-                "/contacts" +
-                "/users";
-    }
 }
 
