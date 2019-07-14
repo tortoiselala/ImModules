@@ -25,5 +25,8 @@ IM记录的拉取，用户恰好登录，从读数据库读取，可能会导致
 MQ存入的顺序是，时间戳越小的消息越早存入MQ，
 当用户登录拉取消息时，尝试拉取多次。
 
+MQ选取RabbitMQ
+
+
 # 参考资料
 http://www.52im.net/forum.php?mod=viewthread&tid=1230&highlight=%B4%E6%B4%A2
