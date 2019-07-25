@@ -1,9 +1,11 @@
 package com.tortoiselala.controller;
 
 import com.tortoiselala.bean.ResponseBean;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,15 +28,15 @@ public class KeyController extends BaseController{
             produces = MediaType.APPLICATION_JSON_UTF8_VALUE
     )
     @ResponseBody
-    public ResponseBean<byte[]> getPublicKey(){
+    public ResponseBean<String> getPublicKey(){
         PublicKey key = getRsaPublicKey();
-        ResponseBean<byte[]> response = new ResponseBean<>();
+        ResponseBean<String> response = new ResponseBean<>();
         if(key == null){
             response.setCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
             response.setMessage("Internal server error");
         }else{
             response.setCode(HttpStatus.OK.value());
-            response.setData(key.getEncoded());
+            response.setData(Base64Utils.encodeToString(key.getEncoded()));
         }
         return response;
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans
         xmlns="http://www.springframework.org/schema/beans"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
         xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd">
 
@@ -15,6 +15,7 @@
              <set>
                  <value>classpath:database.properties</value>
                  <value>classpath:im.properties</value>
+                 <value>classpath:redis.properties</value>
              </set>
          </property>
     </bean>
@@ -25,7 +26,7 @@
         <property name="jdbcUrl" value="${master.url}"/>
         <property name="user" value="${master.username}"/>
         <property name="password" value="${master.password}"/>
-
+<!--        <property name="initialPoolSize" value="100"/>-->
         <!--c3p0私有属性-->
         <property name="maxPoolSize" value="30"/>
         <property name="minPoolSize" value="10"/>
@@ -33,9 +34,9 @@
         <property name="autoCommitOnClose" value="false"/>
 
         <!--获取连接超时时间-->
-        <property name="checkoutTimeout" value="1000"/>
+<!--        <property name="checkoutTimeout" value="1000000"/>-->
         <!--当获取连接失败重试次数-->
-        <property name="acquireRetryAttempts" value="2"/>
+        <property name="acquireRetryAttempts" value="30"/>
     </bean>
     <!-- slave -->
     <bean name="slaveDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
@@ -81,4 +82,26 @@
         <!-- 给出需要扫描的Dao接口-->
         <property name="basePackage" value="com.tortoiselala.dao"/>
     </bean>
+
+    <bean name="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="${redis.maxIdle}"/>
+        <property name="maxWaitMillis" value="${redis.maxWait}"/>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"/>
+    </bean>
+
+    <bean id="jedisConnFactory"
+          class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+          p:hostName="${redis.host}"
+          p:password="${redis.password}"
+          p:poolConfig-ref="poolConfig"
+          p:use-pool="true"/>
+
+    <bean id="redisSerializer" class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+    <bean id="jdkSerializationRedisSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer"/>
+    <!-- redis template definition -->
+    <bean id="redisTemplate"
+          class="org.springframework.data.redis.core.RedisTemplate"
+          p:keySerializer-ref="redisSerializer"
+          p:valueSerializer-ref="redisSerializer"
+          p:connection-factory-ref="jedisConnFactory"/>
 </beans>

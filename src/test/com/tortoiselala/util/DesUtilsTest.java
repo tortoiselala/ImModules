@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
  */
 public class DesUtilsTest {
     public static void main(String[] args) {
-        String[] or = {"root", "88888888",
+        String[] or = {"root", "remote1546191727",
                 "YXA6fvYikhvGQ06m48CqrZQD3Q",
                 "YXA6xbWTXE1FKQBxbsscomgK8DNibns"};
         for (String s : or) {

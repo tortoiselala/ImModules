@@ -1,12 +1,15 @@
 package com.tortoiselala.controller;
 
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import com.tortoiselala.bean.RsaKeyBean;
 import com.tortoiselala.bean.UserBean;
 import com.tortoiselala.exception.ParameterExtractException;
 import com.tortoiselala.util.RsaUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.validator.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Base64Utils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.PrivateKey;
@@ -20,17 +23,28 @@ public class BaseController {
     /**
      * 请求头中用户名的key
      */
-    private static final String KEY_UID = "uid";
+    public static final String KEY_UID = "uid";
 
     /**
      * 请求头中密码的key
      */
-    private static final String KEY_PASSWORD = "password";
+    public static final String KEY_PASSWORD = "password";
 
     /**
      * 请求头中email的key
      */
-    private static final String KEY_EMAIL = "email";
+    public static final String KEY_EMAIL = "email";
+
+    /**
+     * 请求中的email的key
+     */
+    public static final String KEY_TOKEN = "token";
+
+    public static final String KEY_TYPE = "type";
+
+    public static final String KEY_TYPE_GET = "type_get";
+
+    public static final String KEY_TYPE_VALIDATE = "validate";
 
     /**
      * 系统初始化时生成RSA秘钥对
@@ -77,16 +91,16 @@ public class BaseController {
      * @param key parameter key
      * @return paraneter
      */
-    private String getRequestParameters(HttpServletRequest request, String key){
+    protected String getRequestParameters(HttpServletRequest request, String key){
        return request.getParameter(key);
     }
 
     /**
-     * 获取请求头中的账号
+     * 账号
      * @param request
      * @return
      */
-    final String getUidFromRequest(HttpServletRequest request) throws ParameterExtractException {
+    final String checkUid(HttpServletRequest request) throws ParameterExtractException {
 
         String uid = getRequestParameters(request, KEY_UID);
 
@@ -105,30 +119,30 @@ public class BaseController {
     }
 
     /**
-     * 获取请求头中的密码，并解密
-     * @param request request
+     * 使用私钥解密密码
+     * @param password password
      * @return 解密后的密码
      */
-    final String getPasswordFromRequest(HttpServletRequest request) throws ParameterExtractException {
-        String password = getRequestParameters(request, KEY_PASSWORD);
+    final String decryptPassword(String password) throws ParameterExtractException {
         PrivateKey privateKey = getRsaPrivateKey();
         if(password == null){
-            throw new ParameterExtractException("request no password");
+            throw new ParameterExtractException("request has no password");
         }
-        byte[] de = RsaUtils.decrypt(privateKey, password.getBytes());
+        byte[] d = Base64Utils.decodeFromString(password);
+        byte[] de = RsaUtils.decrypt(privateKey, d);
         if(de == null){
             throw new ParameterExtractException("password is not encrypted");
         }
         return new String(de);
+
     }
 
     /**
-     * 获取请求头中的邮箱并做合法性检查
-     * @param request
+     * 对邮箱做合法性检查
+     * @param email
      * @return email
      */
-    final String getEmailFromRequest(HttpServletRequest request) throws ParameterExtractException {
-        String email = getRequestParameters(request, KEY_EMAIL);
+    final String checkEmail(String email) throws ParameterExtractException {
         if(email == null){
             throw new ParameterExtractException("request no email");
         }
@@ -138,37 +152,4 @@ public class BaseController {
         }
         return email;
     }
-
-    /**
-     * 从请求中抽取用户名和解密后的密码信息
-     * @param request
-     * @return
-     * @throws ParameterExtractException
-     */
-    UserBean userAuthorityInformationExtract(HttpServletRequest request) throws ParameterExtractException {
-        String uid = getUidFromRequest(request);
-        String password = getPasswordFromRequest(request);
-        return new UserBean(uid, password);
-    }
-
-    /**
-     * 从请求中抽取用户名和解密后的密码信息
-     * @param request
-     * @return
-     * @throws ParameterExtractException
-     */
-    UserBean userRegisterInformationExtract(HttpServletRequest request) throws ParameterExtractException {
-        String uid = getUidFromRequest(request);
-        String password = getPasswordFromRequest(request);
-        String email = getEmailFromRequest(request);
-
-        UserBean user = new UserBean();
-        user.setUid(uid);
-        user.setPassword(password);
-        user.setEmail(email);
-
-        return user;
-    }
-
-
 }

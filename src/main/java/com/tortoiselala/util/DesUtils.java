@@ -9,7 +9,7 @@ import java.security.spec.AlgorithmParameterSpec;
 
 /**
  * @Createtime 2014年12月5日 14:22:00
- * @author Lxz
+ * @author tortoiselala
  *
  */
 public class DesUtils {

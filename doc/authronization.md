@@ -54,3 +54,10 @@ https://cloud.tencent.com/developer/article/1166255
 服务端使用ServerPrivateKey解密得到username,password和ClientPublicKey
 服务端权限认证成功后生成JWT，将JWT使用ClientPublicKey加密发送到客户端
 客户端使用ClientPrivateKey加密
+
+
+server生成token后存储在redis中
+为了不同客户端（PC，手机）能够得知各自的状态
+
+不同域间需要登录时，首先重定向至登录接口，服务器判断，如果已经登录，则直接返回token
+

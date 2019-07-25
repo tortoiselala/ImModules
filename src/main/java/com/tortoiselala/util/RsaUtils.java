@@ -3,6 +3,7 @@ package com.tortoiselala.util;
 import com.tortoiselala.bean.RsaKeyBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Base64Utils;
 
 import javax.crypto.Cipher;
 import java.security.KeyPairGenerator;
@@ -29,7 +30,7 @@ public class RsaUtils {
      * 生成秘钥对
      * @return
      */
-    public RsaKeyBean generateKeyPair(){
+    public RsaKeyBean generateKeyPair() {
         KeyPairGenerator gen = null;
         try {
             gen = KeyPairGenerator.getInstance(ENCRYPTION_ALGORITHM);
@@ -38,7 +39,9 @@ public class RsaUtils {
             logger.error("加密方式错误  " + e.getMessage());
             return null;
         }
-        return new RsaKeyBean(gen.generateKeyPair());
+        RsaKeyBean bean = new RsaKeyBean(gen.generateKeyPair());
+        System.out.println("encrypt 1546191727 : " + Base64Utils.encodeToString(RsaUtils.encrypt(bean.getPublicKey(), "1546191727".getBytes())));
+        return bean;
     }
 
     /**

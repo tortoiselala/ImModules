@@ -90,6 +90,6 @@ public class Md5Utils {
     }
 
     public static String passwordConvert(String password, String salt){
-        return convert32(password + salt);
+        return convert16(password + salt);
     }
 }

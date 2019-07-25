@@ -22,11 +22,11 @@ public class UserDaoTest {
     @Test
     public void insertNewUser() {
         User user = new User();
-        String password = "wym1546191727";
+        String password = "yangminwu";
         String salt = "abcderf";
         user.setUid("1546191727");
         user.setUsername("wym");
-        user.setPassword(Md5Utils.convert32(password + salt));
+        user.setPassword(Md5Utils.convert16(password + salt));
         user.setSalt(salt);
         user.setRealName("wym");
         user.setPhone("17319005295");

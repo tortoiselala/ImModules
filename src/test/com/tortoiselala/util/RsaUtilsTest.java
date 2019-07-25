@@ -2,8 +2,8 @@ package com.tortoiselala.util;
 
 import com.tortoiselala.bean.RsaKeyBean;
 import org.junit.Test;
+import org.springframework.util.Base64Utils;
 
-import java.util.Arrays;
 
 /**
  * @author tortoiselala
@@ -14,27 +14,18 @@ public class RsaUtilsTest {
     public void test() {
         RsaUtils rsaUtils = new RsaUtils();
         RsaKeyBean key = rsaUtils.generateKeyPair();
-        char[] or = "abcdef".toCharArray();
-        System.out.println("-- start RsaUtils test");
 
-        System.out.println("-- public key :" + key.getPublicKey());
+        String password = "1546191727";
+        byte[] passwordAfterEncode = RsaUtils.encrypt(key.getPublicKey(), password.getBytes());
 
-        System.out.println("-- private key :" + key.getPrivateKey());
+        assert passwordAfterEncode != null;
+        String passwordEncodeBase64UrlSafeString = Base64Utils.encodeToString(passwordAfterEncode);
+        System.out.println("after base64 encode :" + passwordEncodeBase64UrlSafeString);
+        byte[] passwordDecodeBase64UrlSafeString = Base64Utils.decodeFromString(passwordEncodeBase64UrlSafeString);
 
-        byte[] en = RsaUtils.encrypt(key.getPublicKey(), new String(or).getBytes());
-        byte[] de = RsaUtils.decrypt(key.getPrivateKey(), en);
-        System.out.println("-- 'abcdef' after en" + Arrays.toString(en));
+        byte[] passwordAfterDecode = RsaUtils.decrypt(key.getPrivateKey(), passwordDecodeBase64UrlSafeString);
 
-        System.out.println("-- 'abcdef' after de" + Arrays.toString(de));
-
-        for(int i = 0; i < or.length; ++i){
-            if(or[i] == de[i]){
-                System.out.println("equals, or[i]:" + or[i]);
-            }else{
-                System.out.println("not equals, en[i]:" + or[i] + "de[i]:" + (char)(de[i]));
-            }
-        }
-
-        System.out.println("-- end RsaUtils test");
+        assert passwordAfterDecode != null;
+        System.out.println(new String(passwordAfterDecode));
     }
 }
